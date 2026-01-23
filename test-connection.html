@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试API连接</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+    </style>
+</head>
+<body>
+    <h1>测试API连接</h1>
+    <div id="results"></div>
+    
+    <script>
+        const resultsDiv = document.getElementById('results');
+        
+        function addResult(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.textContent = message;
+            resultsDiv.appendChild(div);
+        }
+        
+        // 测试直接访问后端API
+        async function testDirectConnection() {
+            addResult('开始测试直接连接后端API...');
+            
+            try {
+                const response = await fetch('http://localhost:3000/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: 'testdirect',
+                        password: '123456',
+                        phone: '13800138000',
+                        email: 'test@example.com'
+                    })
+                });
+                
+                const data = await response.json();
+                addResult(`直接连接测试结果: ${response.status} ${response.statusText}`, response.ok ? 'success' : 'error');
+                addResult(`响应数据: ${JSON.stringify(data)}`, response.ok ? 'success' : 'error');
+            } catch (error) {
+                addResult(`直接连接测试失败: ${error.message}`, 'error');
+            }
+        }
+        
+        // 测试CORS配置
+        async function testCORS() {
+            addResult('开始测试CORS配置...');
+            
+            try {
+                const response = await fetch('http://localhost:3000/health', {
+                    method: 'GET'
+                });
+                
+                const data = await response.json();
+                addResult(`CORS测试结果: ${response.status} ${response.statusText}`, 'success');
+                addResult(`健康检查响应: ${JSON.stringify(data)}`, 'success');
+            } catch (error) {
+                addResult(`CORS测试失败: ${error.message}`, 'error');
+            }
+        }
+        
+        // 运行测试
+        testDirectConnection();
+        testCORS();
+    </script>
+</body>
+</html>
