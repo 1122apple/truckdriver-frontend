@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { Phone, Upload, Clock, AlertCircle } from 'lucide-react';
+import { Phone, Upload, Clock, AlertCircle, Check } from 'lucide-react';
 
 export default function ComplaintCenter() {
   const [selectedType, setSelectedType] = useState('');
   const [complaintText, setComplaintText] = useState('');
+  const [complaintSubmitted, setComplaintSubmitted] = useState(false);
+  const [submittedComplaint, setSubmittedComplaint] = useState<any>(null);
 
   const complaintTypes = [
     { id: 'insurance', name: '保险公司', desc: '理赔纠纷、拒赔等' },
@@ -66,56 +68,146 @@ export default function ComplaintCenter() {
 
       {/* 快速投诉 */}
       <div className="bg-white rounded-xl shadow-sm p-6">
-        <h2 className="text-gray-900 mb-4">发起投诉</h2>
-        
-        {/* 选择投诉对象 */}
-        <div className="flex flex-col gap-3 mb-4">
-          <label className="text-gray-700">投诉对象</label>
-          <div className="grid grid-cols-1 gap-3">
-            {complaintTypes.map((type) => (
-              <button
-                key={type.id}
-                onClick={() => setSelectedType(type.id)}
-                className={`p-4 border-2 rounded-lg text-left transition-colors ${
-                  selectedType === type.id
-                    ? 'border-blue-600 bg-blue-50'
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <p className="text-gray-900 mb-1">{type.name}</p>
-                <p className="text-gray-500 text-sm">{type.desc}</p>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* 投诉事由 */}
-        <div className="flex flex-col gap-3 mb-4">
-          <label className="text-gray-700">投诉事由</label>
-          <textarea
-            value={complaintText}
-            onChange={(e) => setComplaintText(e.target.value)}
-            placeholder="请详细描述投诉的事由、经过和诉求..."
-            className="w-full h-32 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-          />
-        </div>
-
-        {/* 上传证据 */}
-        <div className="flex flex-col gap-3 mb-4">
-          <label className="text-gray-700">上传证据</label>
-          <button className="flex items-center gap-3 p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors">
-            <Upload className="w-6 h-6 text-gray-400" />
-            <div className="flex-1 text-left">
-              <p className="text-gray-900">上传相关证据材料</p>
-              <p className="text-gray-500 text-sm">支持图片、PDF、音频等格式</p>
+        {!complaintSubmitted ? (
+          <>
+            <h2 className="text-gray-900 mb-4">发起投诉</h2>
+            
+            {/* 选择投诉对象 */}
+            <div className="flex flex-col gap-3 mb-4">
+              <label className="text-gray-700">投诉对象</label>
+              <div className="grid grid-cols-1 gap-3">
+                {complaintTypes.map((type) => (
+                  <button
+                    key={type.id}
+                    onClick={() => setSelectedType(type.id)}
+                    className={`p-4 border-2 rounded-lg text-left transition-colors ${
+                      selectedType === type.id
+                        ? 'border-blue-600 bg-blue-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <p className="text-gray-900 mb-1">{type.name}</p>
+                    <p className="text-gray-500 text-sm">{type.desc}</p>
+                  </button>
+                ))}
+              </div>
             </div>
-          </button>
-        </div>
 
-        {/* 提交按钮 */}
-        <button className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors">
-          提交投诉
-        </button>
+            {/* 投诉事由 */}
+            <div className="flex flex-col gap-3 mb-4">
+              <label className="text-gray-700">投诉事由</label>
+              <textarea
+                value={complaintText}
+                onChange={(e) => setComplaintText(e.target.value)}
+                placeholder="请详细描述投诉的事由、经过和诉求..."
+                className="w-full h-32 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              />
+            </div>
+
+            {/* 上传证据 */}
+            <div className="flex flex-col gap-3 mb-4">
+              <label className="text-gray-700">上传证据</label>
+              <button className="flex items-center gap-3 p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors">
+                <Upload className="w-6 h-6 text-gray-400" />
+                <div className="flex-1 text-left">
+                  <p className="text-gray-900">上传相关证据材料</p>
+                  <p className="text-gray-500 text-sm">支持图片、PDF、音频等格式</p>
+                </div>
+              </button>
+            </div>
+
+            {/* 提交按钮 */}
+            <button 
+              className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors"
+              onClick={() => {
+                // 生成模拟投诉数据
+                const newComplaint = {
+                  id: 'C' + new Date().getTime(),
+                  type: complaintTypes.find(t => t.id === selectedType)?.name || '其他',
+                  title: complaintText.substring(0, 20) + (complaintText.length > 20 ? '...' : ''),
+                  date: new Date().toISOString().split('T')[0],
+                  status: '已受理',
+                  progress: 30,
+                };
+                
+                setSubmittedComplaint(newComplaint);
+                setComplaintSubmitted(true);
+              }}
+            >
+              提交投诉
+            </button>
+          </>
+        ) : (
+          <div className="flex flex-col items-center gap-6 py-8">
+            {/* 成功图标 */}
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+              <Check className="w-8 h-8 text-green-600" />
+            </div>
+            
+            {/* 成功信息 */}
+            <div className="text-center">
+              <h2 className="text-gray-900 text-xl mb-2">投诉提交成功！</h2>
+              <p className="text-gray-600 mb-4">您的投诉已被受理，我们将尽快处理</p>
+            </div>
+            
+            {/* 投诉信息 */}
+            {submittedComplaint && (
+              <div className="w-full border border-gray-200 rounded-lg p-4">
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex-1">
+                    <p className="text-gray-900 mb-1">{submittedComplaint.title}</p>
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-1 bg-blue-100 text-blue-600 text-xs rounded">
+                        {submittedComplaint.type}
+                      </span>
+                      <span className="text-gray-500 text-xs">{submittedComplaint.id}</span>
+                    </div>
+                  </div>
+                  <span className="px-3 py-1 bg-blue-500 text-white text-sm rounded">
+                    {submittedComplaint.status}
+                  </span>
+                </div>
+                
+                {/* 进度条 */}
+                <div className="mb-3">
+                  <div className="flex justify-between mb-1">
+                    <span className="text-gray-600 text-xs">处理进度</span>
+                    <span className="text-gray-900 text-xs">{submittedComplaint.progress}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-blue-600 h-2 rounded-full transition-all" 
+                      style={{ width: `${submittedComplaint.progress}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 text-gray-500 text-xs">
+                  <Clock className="w-4 h-4" />
+                  <span>提交时间：{submittedComplaint.date}</span>
+                </div>
+              </div>
+            )}
+            
+            {/* 操作按钮 */}
+            <div className="flex gap-3 w-full">
+              <button 
+                className="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-50 transition-colors"
+                onClick={() => {
+                  setComplaintSubmitted(false);
+                  setSelectedType('');
+                  setComplaintText('');
+                  setSubmittedComplaint(null);
+                }}
+              >
+                再次投诉
+              </button>
+              <button className="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                查看详情
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 投诉记录 */}

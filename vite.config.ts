@@ -54,8 +54,9 @@
       outDir: 'build',
     },
     server: {
-      port: 5173,
+      port: 3001, // 修改为更常用的端口，避免被防火墙阻止
       open: true,
+      host: true, // 确保监听所有网络接口，允许外部访问
       proxy: {
         '/api': {
           target: 'http://localhost:3000',

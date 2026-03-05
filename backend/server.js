@@ -17,13 +17,14 @@ const errorHandler = require('./middleware/errorHandler');
 
 // 导入路由（类似C中的函数声明）
 const authRoutes = require('./routes/auth');
+console.log('✅ authRoutes 加载成功:', authRoutes);
 const contractRoutes = require('./routes/contract');
 const evidenceRoutes = require('./routes/evidence');
 const detectionRoutes = require('./routes/detection');
 const complaintRoutes = require('./routes/complaint');
 const voiceRoutes = require('./routes/voice');
 const dashboardRoutes = require('./routes/dashboard');
-
+const learningRoutes = require('./routes/learning');
 // 创建Express应用（类似C中的初始化）
 const app = express();
 
@@ -34,9 +35,8 @@ connectDB();
 app.use(helmet()); // 设置HTTP安全头
 app.use(compression()); // 压缩响应
 
-// CORS配置（跨域资源共享）
 app.use(cors({
-  origin: '*', // 允许所有来源访问，解决跨域问题
+  origin: true, // 自动匹配前端来源，解决 '*' 和 credentials 的冲突
   credentials: true
 }));
 
@@ -67,6 +67,7 @@ app.use('/api/detection', detectionRoutes);
 app.use('/api/complaint', complaintRoutes);
 app.use('/api/voice', voiceRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/learning', learningRoutes);
 
 // 404处理（类似C中的默认case）
 app.use((req, res) => {
@@ -96,3 +97,4 @@ process.on('SIGINT', () => {
   console.log('收到SIGINT信号，正在关闭服务器...');
   process.exit(0);
 });
+

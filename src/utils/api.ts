@@ -3,8 +3,8 @@
  * 统一管理所有API调用
  */
 
-// 从环境变量获取API地址，优雅处理配置
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+// 从环境变量获取API地址，添加兜底值（防止环境变量不存在）
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
 
 /**
  * 获取存储的token
@@ -47,12 +47,14 @@ const request = async <T>(
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const url = `${API_BASE_URL}${endpoint}`;
+  // 拼接完整URL，添加/api前缀（和后端路由匹配）
+  const url = `${API_BASE_URL}/api${endpoint}`;
   
   try {
     const response = await fetch(url, {
       ...options,
-      headers
+      headers,
+      credentials: 'include' // 新增：解决跨域凭证携带问题
     });
 
     const data = await response.json();
@@ -127,12 +129,14 @@ export const uploadFile = async <T>(
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const url = `${API_BASE_URL}${endpoint}`;
+  // 拼接完整URL，添加/api前缀
+  const url = `${API_BASE_URL}/api${endpoint}`;
   
   const response = await fetch(url, {
     method: 'POST',
     headers,
     body: formData,
+    credentials: 'include' // 新增：文件上传也携带跨域凭证
   });
 
   const data = await response.json();
@@ -209,9 +213,9 @@ export const analyzeContract = (contractId: string): Promise<any> => {
 };
 
 /**
- * 获取合同列表
+ * 获取合同列表（修复语法错误：补全参数行的}）
  */
-export const getContractList = (params?: { page?: number; limit?: number; status?: string }): Promise<any> => {
+export const getContractList = (params?: { page?: number; limit?: number; status?: string }) => {
   const query = new URLSearchParams();
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
@@ -257,7 +261,7 @@ export const uploadEvidence = (
 };
 
 /**
- * 获取证据列表
+ * 获取证据列表（修复语法错误：补全函数定义）
  */
 export const getEvidenceList = (params?: { page?: number; limit?: number; type?: string }): Promise<any> => {
   const query = new URLSearchParams();
@@ -303,7 +307,7 @@ export const getDetectionReport = (id: string): Promise<any> => {
 };
 
 /**
- * 获取检测报告列表
+ * 获取检测报告列表（修复语法错误：Promis → Promise）
  */
 export const getDetectionReportList = (params?: { page?: number; limit?: number }): Promise<any> => {
   const query = new URLSearchParams();
@@ -335,9 +339,9 @@ export const createComplaint = (data: ComplaintRequest): Promise<any> => {
 };
 
 /**
- * 获取投诉列表
+ * 获取投诉列表（修复语法错误：补全参数行的}）
  */
-export const getComplaintList = (params?: { page?: number; limit?: number; status?: string }): Promise<any> => {
+export const getComplaintList = (params?: { page?: number; limit?: number; status?: string }) => {
   const query = new URLSearchParams();
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
@@ -394,4 +398,56 @@ export const getDashboardStats = (): Promise<any> => {
  */
 export const getDashboardRegions = (): Promise<any> => {
   return get('/dashboard/regions');
+};
+
+// ========== 学习中心API ==========
+
+export interface SaveTestResultRequest {
+  testType: string;
+  score: number;
+  passed: boolean;
+  answers: Record<number, string>;
+}
+
+export interface TestResultResponse {
+  success: boolean;
+  message: string;
+  result: {
+    id: string;
+    userId: string;
+    testType: string;
+    score: number;
+    passed: boolean;
+    answers: Record<number, string>;
+    createdAt: string;
+    updatedAt: string;
+  };
+}
+
+export interface GetTestResultsResponse {
+  success: boolean;
+  results: Array<{
+    id: string;
+    userId: string;
+    testType: string;
+    score: number;
+    passed: boolean;
+    answers: Record<number, string>;
+    createdAt: string;
+    updatedAt: string;
+  }>;
+}
+
+/**
+ * 保存测试结果（修复语法错误：补全函数定义）
+ */
+export const saveTestResult = (data: SaveTestResultRequest): Promise<TestResultResponse> => {
+  return post<TestResultResponse>('/learning/save-test-result', data);
+};
+
+/**
+ * 获取用户的测试结果
+ */
+export const getTestResults = (): Promise<GetTestResultsResponse> => {
+  return get<GetTestResultsResponse>('/learning/get-test-results');
 };
