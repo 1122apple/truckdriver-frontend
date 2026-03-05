@@ -4,8 +4,7 @@
  */
 
 // 从环境变量获取API地址，添加兜底值（防止环境变量不存在）
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://backend-api-production-6355.up.railway.app';
 /**
  * 获取存储的token
  */
