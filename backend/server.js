@@ -82,7 +82,7 @@ app.use(errorHandler);
 
 // 启动服务器（类似C中的main函数）
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT,'0.0.0.0', () => {
   console.log(`🚀 服务器运行在 http://localhost:${PORT}`);
   console.log(`📝 环境: ${process.env.NODE_ENV || 'development'}`);
 });
